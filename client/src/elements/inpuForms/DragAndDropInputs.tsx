@@ -7,7 +7,6 @@ interface DragAndDropProps {
   addFn: (location: string, file: string) => void;
   deleteFn: (location: string) => void;
   withoutButtonAll?: boolean;
-  withoutButtonSpecific?: boolean;
   sectionName: string;
   sx?: object;
 }
@@ -17,33 +16,35 @@ export const DragAndDrop = ({
   addFn,
   deleteFn,
   withoutButtonAll,
-  withoutButtonSpecific,
   sectionName,
   sx,
 }: DragAndDropProps) => {
-  const [preview, setPreview] = useState("");
+  const [previews, setPreviews] = useState<string[]>([]);
 
   const handleRemoveButton = () => {
-    setPreview("");
+    setPreviews([]);
     deleteFn(sectionName);
   };
 
   const onDrop = (acceptedFiles: File[], fileRejections: FileRejection[]) => {
-    const file = acceptedFiles[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (file && reader.result) {
-        setPreview(reader.result.toString());
-        addFn(location, reader.result.toString());
+    const files = acceptedFiles.slice(0, 4 - previews.length);
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        if (file && result) {
+          setPreviews((prevPreviews) => [...prevPreviews, result.toString()]);
+          addFn(location, reader.result.toString());
+        }
+      };
+      if (file) {
+        if (file.type.startsWith("image")) {
+          reader.readAsDataURL(file);
+        } else if (file.type.startsWith("video")) {
+          reader.readAsDataURL(file);
+        }
       }
-    };
-    if (file) {
-      if (file.type.startsWith("image")) {
-        reader.readAsDataURL(file);
-      } else if (file.type.startsWith("video")) {
-        reader.readAsDataURL(file);
-      }
-    }
+    });
   };
 
   let acceptTypes: { [key: string]: string[] } = {};
@@ -57,7 +58,7 @@ export const DragAndDrop = ({
 
   const dropzoneOptions: DropzoneOptions = {
     onDrop,
-    multiple: false,
+    multiple: true,
     accept: acceptTypes,
   };
 
@@ -77,48 +78,51 @@ export const DragAndDrop = ({
     >
       <Box sx={{ borderBottom: "1px solid #1976d2" }} />
       <Container
-        {...getRootProps()}
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          border: "1px dashed grey",
-          borderRadius: "10px",
-          borderColor: isDragActive ? "primary.main" : "text.secondary",
-          textAlign: "center",
-          cursor: "pointer",
-          margin: "10px 0",
+          width: "100%",
           height: "100%",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+          gridTemplateRows: "repeat(auto-fill, minmax(130px, auto))",
+          gridAutoRows: "auto",
+          gridGap: "10px",
+          placeItems: "center",
+          padding: "15px",
         }}
       >
-        <input {...getInputProps()} />
-        {preview ? (
-          <>
-            {preview.startsWith("data:image") ? (
-              <img
-                src={preview}
-                alt="Preview"
-                style={{ maxWidth: "100%", maxHeight: "100%" }}
-              />
-            ) : (
-              preview.startsWith("data:video") && (
-                <video controls style={{ maxWidth: "100%", maxHeight: "100%" }}>
-                  <source
-                    src={preview}
-                    type={location === "image/gif" ? "image/gif" : "video/mp4"}
-                  />
-                  Your browser does not support the video tag.
-                </video>
-              )
-            )}
-          </>
-        ) : (
-          <Typography variant="h5">
-            {isDragActive
-              ? `Drop the ${location} here`
-              : `Drag & Drop ${location} Here or Click to Browse`}
-          </Typography>
+        {previews.map((preview, index) => (
+          <img
+            key={index}
+            src={preview}
+            alt={`Preview ${index + 1}`}
+            style={{
+              marginBottom: "10px",
+              maxHeight: "155px",
+            }}
+          />
+        ))}
+        {previews.length < 4 && (
+          <Container
+            {...getRootProps()}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px dashed grey",
+              borderRadius: "10px",
+              cursor: "pointer",
+              height: "95%",
+              marginBottom: "auto",
+            }}
+          >
+            <input {...getInputProps()} />
+            <Typography variant="h5">
+              {isDragActive
+                ? `Drop the ${location} here`
+                : `Drag & Drop ${location} Here or Click to Browse`}
+            </Typography>
+          </Container>
         )}
       </Container>
       <Box
@@ -138,27 +142,16 @@ export const DragAndDrop = ({
         >
           {sectionName.toUpperCase()}
         </Typography>
-        <Box sx={{ marginLeft: "auto" }}>
-          {!withoutButtonSpecific && (
-            <Button
-              variant="contained"
-              color="error"
-              onClick={() => handleRemoveButton()}
-            >
-              Remove Selected
-            </Button>
-          )}
-          {!withoutButtonAll && (
-            <Button
-              variant="contained"
-              color="error"
-              onClick={() => handleRemoveButton()}
-              sx={{ marginLeft: "10px" }}
-            >
-              Remove All
-            </Button>
-          )}
-        </Box>
+        {!withoutButtonAll && (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => handleRemoveButton()}
+            sx={{ marginLeft: "auto" }}
+          >
+            Remove All
+          </Button>
+        )}
       </Box>
     </Paper>
   );

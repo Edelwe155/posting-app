@@ -69,13 +69,6 @@ export const DragAndDropVideo = ({
         <Box
           sx={{
             display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            border: "1px dashed grey",
-            borderRadius: "10px",
-            borderColor: isDragActive ? "primary.main" : "text.secondary",
-            textAlign: "center",
             cursor: "pointer",
             margin: "10px 0",
             height: "100%",
