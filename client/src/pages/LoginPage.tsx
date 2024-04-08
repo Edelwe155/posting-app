@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Box, Button, Link, Paper, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  InputAdornment,
+  Link,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { NamedInput } from "../elements/namedInput";
 import { isEmail, isPassword } from "../utils/validation";
 import { InfoString } from "../elements/infoString";
@@ -9,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
+
   //login data
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");

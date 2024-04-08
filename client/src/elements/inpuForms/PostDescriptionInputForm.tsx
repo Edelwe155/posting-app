@@ -25,9 +25,9 @@ export const PostDescriptionInputForm = ({
         value={description}
         fullWidth
         multiline
-        maxRows={3}
+        maxRows={4}
         onChange={(e) => onChange("description", e.target.value)}
-        sx={{ height: "110px", marginTop: "10px" }}
+        sx={{ height: "140px", marginTop: "10px" }}
       />
       <TextField
         label="Tags"
@@ -41,9 +41,9 @@ export const PostDescriptionInputForm = ({
         value={links}
         fullWidth
         multiline
-        maxRows={2}
+        maxRows={3}
         onChange={(e) => onChange("links", e.target.value)}
-        sx={{ height: "80px", marginTop: "10px" }}
+        sx={{ height: "120px", marginTop: "10px" }}
       />
     </Box>
   );

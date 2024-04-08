@@ -75,11 +75,7 @@ export const DragAndDrop = ({
         ...sx,
       }}
     >
-      <Box sx={{ borderBottom: "1px solid #1976d2" }}>
-        <Typography sx={{ marginBottom: "5px", fontSize: "18px" }}>
-          {sectionName}
-        </Typography>
-      </Box>
+      <Box sx={{ borderBottom: "1px solid #1976d2" }} />
       <Container
         {...getRootProps()}
         sx={{
@@ -134,25 +130,35 @@ export const DragAndDrop = ({
           justifyContent: "flex-end",
         }}
       >
-        {!withoutButtonSpecific && (
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => handleRemoveButton()}
-          >
-            Remove Selected
-          </Button>
-        )}
-        {!withoutButtonAll && (
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => handleRemoveButton()}
-            sx={{ marginLeft: "10px" }}
-          >
-            Remove All
-          </Button>
-        )}
+        <Typography
+          sx={{
+            marginBottom: "5px",
+            fontSize: "22px",
+          }}
+        >
+          {sectionName.toUpperCase()}
+        </Typography>
+        <Box sx={{ marginLeft: "auto" }}>
+          {!withoutButtonSpecific && (
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => handleRemoveButton()}
+            >
+              Remove Selected
+            </Button>
+          )}
+          {!withoutButtonAll && (
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => handleRemoveButton()}
+              sx={{ marginLeft: "10px" }}
+            >
+              Remove All
+            </Button>
+          )}
+        </Box>
       </Box>
     </Paper>
   );

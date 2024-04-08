@@ -1,8 +1,18 @@
 import React, { useState } from "react";
-import { Box, FormHelperText, TextField } from "@mui/material";
+import {
+  Box,
+  FormHelperText,
+  IconButton,
+  InputAdornment,
+  OutlinedInput,
+} from "@mui/material";
+import {
+  PasswordVisibilityOff,
+  PasswordVisibilityOn,
+} from "../icons/passwordVisibilityIcons";
 
 interface NamedInputProps {
-  label: string;
+  label: "Name" | "Password" | "Login" | "Email";
   id: string;
   validationFn: (value: string) => boolean;
   onChange: (value: string) => void;
@@ -15,6 +25,14 @@ export const NamedInput = ({
   onChange,
 }: NamedInputProps) => {
   const [error, setError] = useState<string | null>(null);
+  //password show/hide
+  const [showPassword, setShowPassword] = useState<boolean>(true);
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+  };
 
   const handleChangeValue = (e: any) => {
     onChange(e.target.value);
@@ -33,11 +51,29 @@ export const NamedInput = ({
         margin: "15px 25px",
       }}
     >
-      <TextField
-        id="outlined-multiline-flexible"
-        label={label}
+      <OutlinedInput
+        placeholder={label}
         onChange={handleChangeValue}
         sx={{ width: "100%" }}
+        type={!showPassword || label !== "Password" ? "text" : "password"}
+        endAdornment={
+          label === "Password" && (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label="toggle password visibility"
+                onClick={handleClickShowPassword}
+                onMouseDown={handleMouseDownPassword}
+                disableRipple
+              >
+                {showPassword ? (
+                  <PasswordVisibilityOff />
+                ) : (
+                  <PasswordVisibilityOn />
+                )}
+              </IconButton>
+            </InputAdornment>
+          )
+        }
       />
       <FormHelperText
         sx={{

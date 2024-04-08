@@ -11,13 +11,16 @@ import {
   Select,
 } from "@mui/material";
 import { MediaSectionWrapper } from "../elements/sectionWrappers/postMediaWrapper";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PostDescriptionInputForm } from "../elements/inpuForms/PostDescriptionInputForm";
 import { DragAndDrop } from "../elements/inpuForms/DragAndDropInputs";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { splitString } from "../utils/helpers";
+import { DragAndDropVideo } from "../elements/inpuForms/DragAndDropVideo";
 
-const wrapperSx = { minHeight: "420px", minWidth: "620px" };
+//reusable constants
+const wrapperSx = { height: "420px", width: "620px" };
 const mediaContainers = ["video", "pics", "gifs", "text"];
 const initialTextMediaState = {
   name: "",
@@ -49,12 +52,24 @@ const MediaCheckbox: React.FC<MediaCheckboxProps> = ({
 
 export const PostPage = () => {
   //form data
-  const [textMedia, setTextMedia] = useState<Record<string, string[] | string>>(
+  const [textMedia, setTextMedia] = useState<Record<string, string>>(
     initialTextMediaState
   );
+
+  const handleChangeTextFields = (location: string, value: string) => {
+    setTextMedia((prevState) => ({
+      ...prevState,
+      [location]: value,
+    }));
+  };
+
   const addedVideoRef = useRef<string | null>(null);
   const addedPicturesRef = useRef<string | null>(null);
   const addedGifsRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    console.log(addedPicturesRef.current);
+  }, [addedPicturesRef.current]);
 
   const addFile = (location: string, file: string) => {
     switch (location) {
@@ -96,7 +111,7 @@ export const PostPage = () => {
   };
 
   //posting
-  const [selectedOption, setSelectedOption] = useState("");
+  const [selectedBranchToPost, setSelectedBranchToPost] = useState("");
   const [chosenMediaToPost, setChosenMediaToPost] = useState<
     Record<string, boolean>
   >({
@@ -115,22 +130,19 @@ export const PostPage = () => {
     }
   };
 
-  const handleChangeTextFields = (location: string, value: string) => {
-    setTextMedia((prevState) => ({
-      ...prevState,
-      [location]: value,
-    }));
-  };
-
   //submit
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
       const { data } = await axios.post("/post-media", {
         video: addedVideoRef.current,
-        pics: addedPicturesRef.current,
-        gifs: addedGifsRef.current,
-        text: textMedia,
+        pics: addedPicturesRef.current && splitString(addedPicturesRef.current),
+        gifs: addedGifsRef.current && splitString(addedGifsRef.current),
+        text: {
+          ...textMedia,
+          tags: splitString(textMedia.tags),
+          links: splitString(textMedia.links),
+        },
       });
       if (data.error) {
         toast.error(data.error);
@@ -154,8 +166,7 @@ export const PostPage = () => {
           gridGap: "20px",
         }}
       >
-        <DragAndDrop
-          withoutButtonSpecific
+        <DragAndDropVideo
           sectionName={"video"}
           sx={{ ...wrapperSx }}
           deleteFn={removeFile}
@@ -178,11 +189,7 @@ export const PostPage = () => {
           addFn={addFile}
           location="image/gif"
         />
-        <MediaSectionWrapper
-          withoutButtons
-          sectionName={"text"}
-          sx={{ ...wrapperSx }}
-        >
+        <MediaSectionWrapper sx={{ ...wrapperSx }}>
           <PostDescriptionInputForm
             onChange={handleChangeTextFields}
             initial={textMedia}
@@ -228,8 +235,8 @@ export const PostPage = () => {
         <FormControl sx={{ minWidth: "220px" }}>
           <InputLabel>Post Branch</InputLabel>
           <Select
-            value={selectedOption}
-            onChange={(event) => setSelectedOption(event.target.value)}
+            value={selectedBranchToPost}
+            onChange={(event) => setSelectedBranchToPost(event.target.value)}
             label="Post Branch"
           >
             <MenuItem value="free">Free</MenuItem>
